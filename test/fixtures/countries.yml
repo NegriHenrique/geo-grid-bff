@@ -1,0 +1,33 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  cca2: MyString
+  ccn3: MyString
+  cca3: MyString
+  independent: false
+  status: MyString
+  un_member: false
+  region: MyString
+  landlocked: false
+  area: 1.5
+  population: 1
+  start_of_week: MyString
+  flag: MyString
+  lat: 1.5
+  lng: 1.5
+
+two:
+  cca2: MyString
+  ccn3: MyString
+  cca3: MyString
+  independent: false
+  status: MyString
+  un_member: false
+  region: MyString
+  landlocked: false
+  area: 1.5
+  population: 1
+  start_of_week: MyString
+  flag: MyString
+  lat: 1.5
+  lng: 1.5

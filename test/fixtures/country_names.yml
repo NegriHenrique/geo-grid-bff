@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  country: one
+  common: MyString
+  official: MyString
+  native_names: 
+
+two:
+  country: two
+  common: MyString
+  official: MyString
+  native_names: 

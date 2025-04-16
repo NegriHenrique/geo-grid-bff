@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  country: one
+  google_maps: MyString
+  open_street_maps: MyString
+
+two:
+  country: two
+  google_maps: MyString
+  open_street_maps: MyString
