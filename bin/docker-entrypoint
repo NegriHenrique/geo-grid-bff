@@ -1,14 +1,14 @@
-#!/bin/bash -e
+#!/bin/bash
+set -e
 
-# Enable jemalloc for reduced memory usage and latency.
-if [ -z "${LD_PRELOAD+x}" ]; then
-    LD_PRELOAD=$(find /usr/lib -name libjemalloc.so.2 -print -quit)
-    export LD_PRELOAD
-fi
+# Execute as migrações do banco de dados
+bundle exec rails db:migrate
 
-# If running the rails server then create or migrate existing database
-if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
-  ./bin/rails db:prepare
-fi
+# Popule o banco de dados com os seeds
+bundle exec rails db:seed
 
-exec "${@}"
+# Execute o job de criação de game
+bundle exec rails runner "GenerateGameJob.perform_now"
+
+# Inicie o servidor Rails
+exec "$@"

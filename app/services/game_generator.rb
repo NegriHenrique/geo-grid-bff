@@ -24,6 +24,34 @@ class GameGenerator
       -> {
         continente = [ "Africa", "Americas", "Asia", "Europe", "Oceania", "Antarctic" ].sample
         { scope: :por_continente, arg: continente, descricao: "Continente: #{continente}" }
+      },
+      -> {
+        timezone = Country.joins(:timezones).distinct.pluck("timezones.value").sample
+        { scope: :por_timezone, arg: timezone, descricao: "Timezone: #{timezone}" }
+      },
+      -> {
+        idioma = Country.joins(:languages).distinct.pluck("languages.name").sample
+        { scope: :por_idioma, arg: idioma, descricao: "Idioma: #{idioma}" }
+      },
+      -> {
+        moeda = Country.joins(:currencies).distinct.pluck("currencies.code").sample
+        { scope: :por_moeda, arg: moeda, descricao: "Moeda: #{moeda}" }
+      },
+      -> {
+        tld = Country.joins(:tlds).distinct.pluck("tlds.value").sample
+        { scope: :por_tld, arg: tld, descricao: "TLD: #{tld}" }
+      },
+      -> {
+        traducao = Country.joins(:translations).distinct.pluck("translations.language_code").sample
+        { scope: :por_traducao, arg: traducao, descricao: "Tradução: #{traducao}" }
+      },
+      -> {
+        demonym = Country.joins(:demonyms).distinct.pluck("demonyms.female").sample
+        { scope: :por_demonym, arg: demonym, descricao: "Demonym female: #{demonym}" }
+      },
+      -> {
+        demonym = Country.joins(:demonyms).distinct.pluck("demonyms.male").sample
+        { scope: :por_demonym, arg: demonym, descricao: "Demonym male: #{demonym}" }
       }
     ]
   end

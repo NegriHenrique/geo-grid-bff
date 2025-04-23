@@ -12,7 +12,6 @@ class GenerateGameJob < ApplicationJob
     Game.create!(payload: payload)
   rescue => e
     Rails.logger.error("Falha na geração do grid: #{e.message}")
-    # Re-raise para que o mecanismo de retry do ActiveJob seja acionado
     raise e
   end
 end

@@ -66,8 +66,11 @@ RUN groupadd --system --gid 1000 rails && \
     chown -R rails:rails db log storage tmp
 USER 1000:1000
 
-# Entrypoint prepares the database.
-ENTRYPOINT ["/rails/bin/docker-entrypoint"]
+# Remova o comando chmod, pois o arquivo já deve ter permissões adequadas antes de ser copiado
+COPY bin/docker-entrypoint /usr/local/bin/docker-entrypoint
+
+# Entrypoint prepara o banco de dados e executa o servidor
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint"]
 
 # Start server via Thruster by default, this can be overwritten at runtime
 EXPOSE 80

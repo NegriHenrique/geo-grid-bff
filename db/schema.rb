@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_05_195100) do
+ActiveRecord::Schema[8.0].define(version: 2025_04_23_202154) do
   create_table "alt_spellings", force: :cascade do |t|
     t.integer "country_id", null: false
     t.string "value"
@@ -158,6 +158,14 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_05_195100) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["country_id"], name: "index_languages_on_country_id"
+  end
+
+  create_table "solid_queue_jobs", force: :cascade do |t|
+    t.string "job_class"
+    t.text "arguments"
+    t.string "queue_name"
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
   end
 
   create_table "timezones", force: :cascade do |t|

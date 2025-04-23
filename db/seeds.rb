@@ -12,7 +12,7 @@ CONTINENT_MAPPING = {
   "Africa"     => "África"
 }
 
-url = 'E:\Documentos\projetos\www\GeoGrid\db\data.json'
+url = Rails.root.to_s + "/db/seeds.json"
 
 begin
   countries_json = File.open url
