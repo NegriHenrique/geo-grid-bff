@@ -50,12 +50,8 @@ RUN chmod +x bin/* && \
     sed -i "s/\r$//g" bin/* && \
     sed -i 's/ruby\.exe$/ruby/' bin/*
 
-
-# ARG RAILS_MASTER_KEY is removed to avoid hardcoding sensitive data.
-# Pass RAILS_MASTER_KEY as an environment variable at runtime.
-
 # Precompiling assets for production without requiring secret RAILS_MASTER_KEY
-RUN SECRET_KEY_BASE=`bin/rails secret` ./bin/rails assets:precompile 
+RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
 
 
 
