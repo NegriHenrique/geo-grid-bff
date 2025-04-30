@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
-  get "/health", to: proc { [ 200, {}, [ "OK" ] ] }
+  get "up" => "rails/health#show", as: :rails_health_check
 
 
   get "game/new", to: "game#new"
