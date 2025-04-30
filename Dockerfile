@@ -1,39 +1,40 @@
 # syntax=docker/dockerfile:1
-# Base image for Ruby
-ARG RUBY_VERSION=3.4.1
-FROM ruby:$RUBY_VERSION-slim AS base
+# check=error=true
 
-# Set working directory
+# This Dockerfile is designed for production, not development. Use with Kamal or build'n'run by hand:
+# docker build -t geo_grid .
+# docker run -d -p 80:80 -e RAILS_MASTER_KEY=<value from config/master.key> --name geo_grid geo_grid
+
+# For a containerized dev environment, see Dev Containers: https://guides.rubyonrails.org/getting_started_with_devcontainer.html
+
+# Make sure RUBY_VERSION matches the Ruby version in .ruby-version
+ARG RUBY_VERSION=3.4.1
+FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
+
+# Rails app lives here
 WORKDIR /rails
 
-# Install essential packages
-RUN [ -f /etc/apt/sources.list ] || echo "deb http://deb.debian.org/debian bookworm main" > /etc/apt/sources.list && \
-    sed -i 's|http://deb.debian.org/debian|http://ftp.us.debian.org/debian|g' /etc/apt/sources.list && \
-    (apt-get update -qq || apt-get update -qq) && \
-    apt-get install --no-install-recommends -y \
-    build-essential \
-    curl \
-    libjemalloc2 \
-    libvips \
-    sqlite3 && \
+# Install base packages
+RUN apt-get update -qq && \
+    apt-get install --no-install-recommends -y curl libjemalloc2 libvips sqlite3 && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
-# Set environment variables
+# Set production environment
 ENV RAILS_ENV="production" \
     BUNDLE_DEPLOYMENT="1" \
     BUNDLE_PATH="/usr/local/bundle" \
-    BUNDLE_WITHOUT="development test"
+    BUNDLE_WITHOUT="development"
 
-# Throw-away build stage to reduce final image size
+# Throw-away build stage to reduce size of final image
 FROM base AS build
 
-# Install build dependencies
+# Install packages needed to build gems
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y git pkg-config && \
+    apt-get install --no-install-recommends -y build-essential git pkg-config && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
-# Copy Gemfile and install gems
-COPY Gemfile Gemfile.lock ./ 
+# Install application gems
+COPY Gemfile Gemfile.lock ./
 RUN bundle install && \
     rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git && \
     bundle exec bootsnap precompile --gemfile
@@ -44,34 +45,34 @@ COPY . .
 # Precompile bootsnap code for faster boot times
 RUN bundle exec bootsnap precompile app/ lib/
 
-# Adjust bin files to be executable on Linux
+# Adjust binfiles to be executable on Linux
 RUN chmod +x bin/* && \
     sed -i "s/\r$//g" bin/* && \
     sed -i 's/ruby\.exe$/ruby/' bin/*
 
-# Final stage for production image
+
+
+
+# Final stage for app image
 FROM base
 
-# Copy built artifacts
+# Copy built artifacts: gems, application
 COPY --from=build "${BUNDLE_PATH}" "${BUNDLE_PATH}"
 COPY --from=build /rails /rails
 
-# Ensure necessary directories exist and set permissions
+# Certifique-se de que os diretórios necessários existam antes de alterar as permissões
 RUN mkdir -p storage tmp && \
     groupadd --system --gid 1000 rails && \
     useradd rails --uid 1000 --gid 1000 --create-home --shell /bin/bash && \
     chown -R rails:rails db log storage tmp
-
-# Copy entrypoint script
-COPY bin/docker-entrypoint /usr/local/bin/docker-entrypoint
-RUN chmod +x /usr/local/bin/docker-entrypoint
-
-# Define non-root user after adjusting permissions
 USER 1000:1000
 
-# Entrypoint prepares the database and starts the server
+# Remova o comando chmod, pois o arquivo já deve ter permissões adequadas antes de ser copiado
+COPY bin/docker-entrypoint /usr/local/bin/docker-entrypoint
+
+# Entrypoint prepara o banco de dados e executa o servidor
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint"]
 
-# Expose port and set default command
-EXPOSE 3000
-CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0", "-p", "3000"]
+# Start server via Thruster by default, this can be overwritten at runtime
+EXPOSE 80
+CMD ["./bin/thrust", "./bin/rails", "server"]
