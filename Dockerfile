@@ -55,7 +55,7 @@ RUN chmod +x bin/* && \
 # Pass RAILS_MASTER_KEY as an environment variable at runtime.
 
 # Precompiling assets for production without requiring secret RAILS_MASTER_KEY
-RUN ./bin/rails assets:precompile
+RUN SECRET_KEY_BASE=`bin/rails secret` ./bin/rails assets:precompile 
 
 
 
