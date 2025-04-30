@@ -50,8 +50,12 @@ RUN chmod +x bin/* && \
     sed -i "s/\r$//g" bin/* && \
     sed -i 's/ruby\.exe$/ruby/' bin/*
 
+
+ARG RAILS_MASTER_KEY
+ENV RAILS_MASTER_KEY=$RAILS_MASTER_KEY
+
 # Precompiling assets for production without requiring secret RAILS_MASTER_KEY
-RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
+RUN ./bin/rails assets:precompile
 
 
 
