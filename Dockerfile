@@ -7,7 +7,9 @@ FROM ruby:$RUBY_VERSION-slim AS base
 WORKDIR /rails
 
 # Install essential packages
-RUN apt-get update -qq && \
+RUN [ -f /etc/apt/sources.list ] || echo "deb http://deb.debian.org/debian bookworm main" > /etc/apt/sources.list && \
+    sed -i 's|http://deb.debian.org/debian|http://ftp.us.debian.org/debian|g' /etc/apt/sources.list && \
+    (apt-get update -qq || apt-get update -qq) && \
     apt-get install --no-install-recommends -y \
     build-essential \
     curl \
@@ -31,7 +33,7 @@ RUN apt-get update -qq && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # Copy Gemfile and install gems
-COPY Gemfile Gemfile.lock ./
+COPY Gemfile Gemfile.lock ./ 
 RUN bundle install && \
     rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git && \
     bundle exec bootsnap precompile --gemfile
@@ -59,11 +61,13 @@ RUN mkdir -p storage tmp && \
     groupadd --system --gid 1000 rails && \
     useradd rails --uid 1000 --gid 1000 --create-home --shell /bin/bash && \
     chown -R rails:rails db log storage tmp
-USER 1000:1000
 
 # Copy entrypoint script
 COPY bin/docker-entrypoint /usr/local/bin/docker-entrypoint
 RUN chmod +x /usr/local/bin/docker-entrypoint
+
+# Define non-root user after adjusting permissions
+USER 1000:1000
 
 # Entrypoint prepares the database and starts the server
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint"]
